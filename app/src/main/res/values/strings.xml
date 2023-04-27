@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Cat Feeder App</string>
+    <string name="add">Add</string>
+    <string name="add_schedule">Add schedule</string>
+    <string name="cat_body_weight_kg">Cat body weight (kg)</string>
+    <string name="delete">Delete</string>
+</resources>
