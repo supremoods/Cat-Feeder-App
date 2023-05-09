@@ -144,9 +144,42 @@
 
         <Space
             android:layout_width="match_parent"
+            android:layout_height="40dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
+
+            <TextView
+                android:id="@+id/Weight_Based_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Weight Based"
+                android:textColor="@color/purple_200" />
+
+            <Space
+                android:layout_width="20dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0" />
+
+            <TextView
+                android:id="@+id/Custom_Grams_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:text="Custom Grams"
+                android:textColor="@color/gray_200" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
             android:layout_height="20dp" />
 
         <LinearLayout
+            android:id="@+id/cat_body_weight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -179,6 +212,7 @@
             android:layout_height="50dp" />
 
         <LinearLayout
+            android:id="@+id/food_total_grams"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -200,6 +234,17 @@
                 android:layout_weight="1"
                 android:gravity="right"
                 android:text="0"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/custom_totalGrams"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:ems="10"
+                android:gravity="right"
+                android:hint="00"
+                android:inputType="number"
                 android:textSize="20sp" />
 
         </LinearLayout>

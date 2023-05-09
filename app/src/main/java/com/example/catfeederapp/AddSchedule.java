@@ -27,8 +27,15 @@ public class AddSchedule extends AppCompatActivity {
 
     TextView schedDays, grams;
 
-    EditText bodyWeight;
     BottomSheetDialog repeatItemDialog;
+
+    TextView weightBased, customGrams;
+    EditText bodyWeight, customGramsInput;
+
+    LinearLayout cat_body_weight, food_total_grams;
+
+    Boolean _weightBased = true;
+    Boolean _customGrams = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,17 @@ public class AddSchedule extends AppCompatActivity {
         repeat_btn = findViewById(R.id.repeat_btn);
         cancel_btn = findViewById(R.id.cancel_btn);
         save_btn = findViewById(R.id.save_btn);
+
+        // Modes
+        weightBased = findViewById(R.id.Weight_Based_btn);
+        customGrams = findViewById(R.id.Custom_Grams_btn);
+
+        // Mode Layouts
+        cat_body_weight = findViewById(R.id.cat_body_weight);
+        food_total_grams = findViewById(R.id.food_total_grams);
+
+        // Custom Grams Input
+        customGramsInput = findViewById(R.id.custom_totalGrams);
 
         // Body Weight
         bodyWeight = findViewById(R.id.body_weight);
@@ -64,6 +82,7 @@ public class AddSchedule extends AppCompatActivity {
         amPmPicker.setMaxValue(amPmValues.length - 1);
         amPmPicker.setDisplayedValues(amPmValues);
 
+        customGramsInput.setVisibility(EditText.GONE);
         // store the value of AM/PM
 
         AtomicInteger amPmValue = new AtomicInteger();
@@ -94,6 +113,38 @@ public class AddSchedule extends AppCompatActivity {
 
         cancel_btn.setOnClickListener(v -> {
             finish();
+        });
+
+        weightBased.setOnClickListener(v -> {
+            _weightBased = true;
+            _customGrams = false;
+
+            cat_body_weight.setVisibility(LinearLayout.VISIBLE);
+            food_total_grams.setVisibility(LinearLayout.VISIBLE);
+
+            grams.setVisibility(TextView.VISIBLE);
+            customGramsInput.setVisibility(EditText.GONE);
+
+            // change the color of the text
+            weightBased.setTextColor(getResources().getColor(R.color.purple_200));
+            customGrams.setTextColor(getResources().getColor(R.color.gray_200));
+
+        });
+
+        customGrams.setOnClickListener(v -> {
+            _weightBased = false;
+            _customGrams = true;
+
+            cat_body_weight.setVisibility(LinearLayout.GONE);
+            food_total_grams.setVisibility(LinearLayout.VISIBLE);
+
+            customGramsInput.setVisibility(LinearLayout.VISIBLE);
+            grams.setVisibility(TextView.GONE);
+
+            // change the color of the text
+            weightBased.setTextColor(getResources().getColor(R.color.gray_200));
+            customGrams.setTextColor(getResources().getColor(R.color.purple_200));
+
         });
 
         bodyWeight.addTextChangedListener(new TextWatcher() {
@@ -135,8 +186,11 @@ public class AddSchedule extends AppCompatActivity {
             // get the value of repeat days
             String repeatDays = schedDays.getText().toString();
 
-            saveSchedule(time, repeatDays, bodyWeight.getText().toString(), grams.getText().toString());
-
+            if(_weightBased){
+                saveSchedule(time, repeatDays, bodyWeight.getText().toString(), grams.getText().toString(), false);
+            }else if(_customGrams){
+                saveSchedule(time, repeatDays, "", customGramsInput.getText().toString(), false);
+            }
 
 
         });
@@ -178,7 +232,7 @@ public class AddSchedule extends AppCompatActivity {
         return grams;
     }
 
-    public void saveSchedule(String schedTime, String sched_repeat, String body_weight, String total_grams){
+    public void saveSchedule(String schedTime, String sched_repeat, String body_weight, String total_grams, boolean isDone){
 
         // Timestamp
         long timestamp = System.currentTimeMillis();
@@ -198,7 +252,8 @@ public class AddSchedule extends AppCompatActivity {
                 body_weight,
                 total_grams,
                 date,
-                isEnabled);
+                isEnabled,
+                isDone);
 
         FirebaseDatabase.getInstance().getReference("Schedules")
                 .child(token)

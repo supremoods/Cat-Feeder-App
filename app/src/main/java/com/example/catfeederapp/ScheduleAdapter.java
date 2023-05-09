@@ -60,7 +60,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
         // set the repeat days
         holder.repeat.setText(schedule.getSched_repeat());
-        holder.grams.setText(schedule.getTotal_grams());
+        holder.grams.setText(schedule.getTotal_grams()+" g");
         holder.toggleButton.setChecked(schedule.isEnabled());
 
 

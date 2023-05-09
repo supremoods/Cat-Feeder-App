@@ -3,8 +3,6 @@ package com.example.catfeederapp;
 public class Schedule {
 
 
-
-
     private String sched_token;
     private String sched_time;
     private String sched_repeat;
@@ -14,13 +12,16 @@ public class Schedule {
 
     private boolean isEnabled;
 
+    private boolean isDone;
+
     public Schedule(String sched_token,
                     String sched_time,
                     String sched_repeat,
                     String body_weight,
                     String total_grams,
                     String date_created,
-                    boolean isEnabled) {
+                    boolean isEnabled,
+                    boolean isDone) {
 
         this.sched_token = sched_token;
         this.sched_time = sched_time;
@@ -29,6 +30,7 @@ public class Schedule {
         this.total_grams = total_grams;
         this.date_created = date_created;
         this.isEnabled = isEnabled;
+        this.isDone = isDone;
     }
 
     public Schedule() {
@@ -88,6 +90,14 @@ public class Schedule {
 
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone(boolean done) {
+        isDone = done;
     }
 
 

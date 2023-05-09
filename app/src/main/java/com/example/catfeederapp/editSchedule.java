@@ -28,12 +28,19 @@ public class editSchedule extends AppCompatActivity {
 
     TextView schedDays, grams;
 
-    EditText bodyWeight;
     BottomSheetDialog repeatItemDialog;
     AtomicInteger hourValue = new AtomicInteger();
     AtomicInteger amPmValue = new AtomicInteger();
     AtomicInteger minuteValue = new AtomicInteger();
     DatabaseReference databaseReference;
+
+    TextView weightBased, customGrams;
+    EditText bodyWeight, customGramsInput;
+
+    LinearLayout cat_body_weight, food_total_grams;
+
+    Boolean _weightBased = true;
+    Boolean _customGrams = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +55,17 @@ public class editSchedule extends AppCompatActivity {
 
         //grams
         grams = findViewById(R.id.totalGrams);
+
+        // Modes
+        weightBased = findViewById(R.id.Weight_Based_btn);
+        customGrams = findViewById(R.id.Custom_Grams_btn);
+
+        // Mode Layouts
+        cat_body_weight = findViewById(R.id.cat_body_weight);
+        food_total_grams = findViewById(R.id.food_total_grams);
+
+        // Custom Grams Input
+        customGramsInput = findViewById(R.id.custom_totalGrams);
 
         //Picker Section
         hourPicker = findViewById(R.id.hourPicker);
@@ -107,6 +125,40 @@ public class editSchedule extends AppCompatActivity {
 
         loadSchedData(schedId, schedTime, schedRepeat, bodyWeightValue, totalGrams);
 
+        customGramsInput.setVisibility(EditText.GONE);
+
+        weightBased.setOnClickListener(v -> {
+            _weightBased = true;
+            _customGrams = false;
+
+            cat_body_weight.setVisibility(LinearLayout.VISIBLE);
+            food_total_grams.setVisibility(LinearLayout.VISIBLE);
+
+            grams.setVisibility(TextView.VISIBLE);
+            customGramsInput.setVisibility(EditText.GONE);
+
+            // change the color of the text
+            weightBased.setTextColor(getResources().getColor(R.color.purple_200));
+            customGrams.setTextColor(getResources().getColor(R.color.gray_200));
+
+        });
+
+        customGrams.setOnClickListener(v -> {
+            _weightBased = false;
+            _customGrams = true;
+
+            cat_body_weight.setVisibility(LinearLayout.GONE);
+            food_total_grams.setVisibility(LinearLayout.VISIBLE);
+
+            customGramsInput.setVisibility(LinearLayout.VISIBLE);
+            grams.setVisibility(TextView.GONE);
+
+            // change the color of the text
+            weightBased.setTextColor(getResources().getColor(R.color.gray_200));
+            customGrams.setTextColor(getResources().getColor(R.color.purple_200));
+
+        });
+
         cancel_btn.setOnClickListener(v -> {
             finish();
         });
@@ -152,7 +204,11 @@ public class editSchedule extends AppCompatActivity {
 
             updateSchedule(schedId, time, repeatDays, bodyWeight.getText().toString(), grams.getText().toString());
 
-
+            if(_weightBased){
+                updateSchedule(schedId, time, repeatDays, bodyWeight.getText().toString(), grams.getText().toString());
+            }else if(_customGrams){
+                updateSchedule(schedId, time, repeatDays, "", customGramsInput.getText().toString());
+            }
         });
 
         repeat_btn.setOnClickListener(v -> {
