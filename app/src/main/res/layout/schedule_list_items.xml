@@ -11,6 +11,8 @@
         android:id="@+id/schedCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         app:cardBackgroundColor="@color/gray"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
@@ -19,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/margin"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"

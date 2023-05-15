@@ -37,7 +37,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/schedList"
-            android:layout_width="369dp"
+            android:layout_width="match_parent"
             android:layout_height="689dp"
             android:layout_marginStart="1dp"
             android:layout_marginTop="1dp"

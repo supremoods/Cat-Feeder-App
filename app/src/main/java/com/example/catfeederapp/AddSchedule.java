@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -13,10 +14,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AddSchedule extends AppCompatActivity {
 
@@ -268,5 +275,66 @@ public class AddSchedule extends AppCompatActivity {
                 }).addOnFailureListener(e -> {
                     Toast.makeText(this, "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+
+        String referencePath = "Schedule_Tokens"; // Replace with the actual path to the "sched_token" node
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference(referencePath);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // "sched_token" node exists
+                    // Perform your logic here
+
+                    // get the value of sched_token
+                    String sched_token = dataSnapshot.getValue(String.class);
+
+                    // append the token to the sched_token
+                    String new_sched_token = sched_token + "," + token;
+
+                    // update the sched_token
+
+                    FirebaseDatabase.getInstance().getReference(referencePath)
+                            .setValue(new_sched_token)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()){
+                                    Log.d("SCHED_TOKEN", "Sched Token Updated");
+                                    finish();
+                                }else{
+                                    Log.d("SCHED_TOKEN", "Error: "+task.getException().getMessage());
+                                }
+                            }).addOnFailureListener(e -> {
+                                Log.d("SCHED_TOKEN", "Error: "+e.getMessage());
+                    });
+
+                } else {
+
+                    // create a new sched_token
+                    String new_sched_token = token;
+
+                    FirebaseDatabase.getInstance().getReference(referencePath)
+                            .setValue(new_sched_token)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()){
+                                    Log.d("SCHED_TOKEN", "Sched Token Updated");
+                                    finish();
+                                }else{
+                                    Log.d("SCHED_TOKEN", "Error: "+task.getException().getMessage());
+                                }
+                            }).addOnFailureListener(e -> {
+                                Log.d("SCHED_TOKEN", "Error: "+e.getMessage());
+                    });
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Error occurred while accessing the database
+            }
+        });
+
     }
+
+
 }

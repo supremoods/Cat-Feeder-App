@@ -2,6 +2,7 @@ package com.example.catfeederapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,11 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -38,9 +43,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-
         // check if the database is empty
-
         if (scheduleList.isEmpty()) {
             holder.schedCard.setVisibility(View.GONE);
         } else {
@@ -65,7 +68,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
 
         holder.schedCard.setOnClickListener(v -> {
-
             // call the AddSchedule activity
             Intent intent = new Intent(context, editSchedule.class);
             intent.putExtra("sched_token", scheduleList.get(position).getSched_token());
@@ -74,7 +76,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
             intent.putExtra("sched_grams", scheduleList.get(position).getTotal_grams());
             intent.putExtra("body_weight", scheduleList.get(position).getBody_weight());
             intent.putExtra("enabled", scheduleList.get(position).isEnabled());
-
             context.startActivity(intent);
         });
 
@@ -91,6 +92,16 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
             holder.delete_btn.setOnClickListener(v1 -> {
                 // delete the schedule
                 FirebaseDatabase.getInstance().getReference("Schedules").child(scheduleList.get(position).getSched_token()).removeValue();
+
+                // print log position
+                Log.d("position", String.valueOf(position));
+
+                String referencePath = "Schedule_Tokens"; // Replace with the actual path to the "sched_token" node
+
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference(referencePath);
+
+
+
                 holder.delete_bottom_sheet.dismiss();
             });
 
@@ -99,7 +110,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
         });
 
         // toggle the schedule
-
         holder.toggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 // enable the schedule
@@ -109,7 +119,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 FirebaseDatabase.getInstance().getReference("Schedules").child(scheduleList.get(position).getSched_token()).child("enabled").setValue(false);
             }
         });
-
 
     }
 
@@ -137,6 +146,5 @@ class MyViewHolder extends RecyclerView.ViewHolder {
         repeat = itemView.findViewById(R.id.repeat);
         grams = itemView.findViewById(R.id.grams);
         toggleButton = itemView.findViewById(R.id.toggleBtn);
-
     }
 }
