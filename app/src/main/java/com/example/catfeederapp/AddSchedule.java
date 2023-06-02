@@ -1,5 +1,6 @@
 package com.example.catfeederapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -21,13 +22,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class AddSchedule extends AppCompatActivity {
 
-    LinearLayout repeat_btn, once_btn, daily_btn, weekdays_btn;
+    LinearLayout repeat_btn, once_btn, daily_btn, weekdays_btn, repeat_days_btn;
     NumberPicker hourPicker, minutePicker, amPmPicker;
 
     ImageView cancel_btn, save_btn;
@@ -43,7 +45,7 @@ public class AddSchedule extends AppCompatActivity {
 
     Boolean _weightBased = true;
     Boolean _customGrams = false;
-
+    ArrayList<String> selectedDays = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -193,6 +195,16 @@ public class AddSchedule extends AppCompatActivity {
             // get the value of repeat days
             String repeatDays = schedDays.getText().toString();
 
+            if(repeatDays.equals("Repeat")){
+                // loop through the selected days
+                repeatDays = "";
+                for (String day : selectedDays) {
+                    repeatDays += day + " ";
+                }
+            }
+
+            Toast.makeText(this, time + " " + repeatDays, Toast.LENGTH_SHORT).show();
+
             if(_weightBased){
                 saveSchedule(time, repeatDays, bodyWeight.getText().toString(), grams.getText().toString(), false);
             }else if(_customGrams){
@@ -207,6 +219,8 @@ public class AddSchedule extends AppCompatActivity {
             once_btn = repeatItemDialog.findViewById(R.id.once_btn);
             daily_btn = repeatItemDialog.findViewById(R.id.daily_btn);
             weekdays_btn = repeatItemDialog.findViewById(R.id.weekdays_btn);
+            repeat_days_btn = repeatItemDialog.findViewById(R.id.repeat_days_btn);
+
 
 
             once_btn.setOnClickListener(v1 -> {
@@ -230,8 +244,61 @@ public class AddSchedule extends AppCompatActivity {
 
             });
 
+            repeat_days_btn.setOnClickListener(v1 -> {
+                // show dialog box for repeat days selection
+                repeatItemDialog.dismiss();
+
+                showDialogForRepeatDays();
+            });
+
             repeatItemDialog.show();
         });
+    }
+    private void showDialogForRepeatDays() {
+        // Define the repeat days array
+        String[] repeatDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+        // Create a boolean array to track the selected days
+        boolean[] checkedDays = new boolean[repeatDays.length];
+
+        // Set the checked state for previously selected days
+        for (int i = 0; i < repeatDays.length; i++) {
+            if (selectedDays.contains(repeatDays[i])) {
+                checkedDays[i] = true;
+            }
+        }
+
+        // Implement your code to show the dialog box for repeat days selection
+        // Here's a basic example using AlertDialog with multi-choice items:
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Repeat Days")
+                .setMultiChoiceItems(repeatDays, checkedDays, (dialog, which, isChecked) -> {
+                    // Update the checked state of the selected day
+                    checkedDays[which] = isChecked;
+                })
+                .setPositiveButton("OK", (dialog, which) -> {
+                    // Process the selected repeat days
+                    selectedDays.clear(); // Clear the previously selected days
+
+                    for (int i = 0; i < repeatDays.length; i++) {
+                        if (checkedDays[i]) {
+                            selectedDays.add(repeatDays[i]);
+                        }
+                    }
+
+                    if (selectedDays.isEmpty()) {
+                        // Show an alert indicating that at least one repeat day must be selected
+                        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+                        alertBuilder.setTitle("Error")
+                                .setMessage("Please select at least one repeat day.")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    } else {
+                        schedDays.setText("Repeat");
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     public int calculateGrams(int bodyWeight){

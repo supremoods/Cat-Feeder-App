@@ -91,6 +91,8 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
             holder.delete_btn.setOnClickListener(v1 -> {
                 // delete the schedule
+
+                String temp_token = scheduleList.get(position).getSched_token();
                 FirebaseDatabase.getInstance().getReference("Schedules").child(scheduleList.get(position).getSched_token()).removeValue();
 
                 // print log position
@@ -100,8 +102,37 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
                 DatabaseReference reference = FirebaseDatabase.getInstance().getReference(referencePath);
 
+                reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if(snapshot.exists()){
+                            String sched_token = snapshot.getValue().toString();
 
+                            String[] tokens = sched_token.split(",");
 
+                            for (int i = 0; i < tokens.length; i++) {
+                                if (tokens[i].equals(temp_token)) {
+                                    tokens[i] = "";
+                                }
+                            }
+
+                            String new_sched_token = "";
+
+                            for (int i = 0; i < tokens.length; i++) {
+                                if (!tokens[i].equals("")) {
+                                    new_sched_token += tokens[i] + ",";
+                                }
+                            }
+
+                            FirebaseDatabase.getInstance().getReference("Schedule_Tokens").setValue(new_sched_token);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
                 holder.delete_bottom_sheet.dismiss();
             });
 

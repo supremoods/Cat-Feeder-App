@@ -76,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
                         boolean isEnabled = Boolean.parseBoolean(dataSnapshot.child("enabled").getValue().toString());
                         boolean isDone = Boolean.parseBoolean(dataSnapshot.child("done").getValue().toString());
 
+//                      Log schedRepeat
+                            Log.d("schedRepeat", schedRepeat);
+                        if(schedRepeat != "Once" || schedRepeat != "Once" || schedRepeat != "Daily"){
+                            schedRepeat = "Repeat";
+                        }
+
                         // create a new schedule object
                         Schedule schedule = new Schedule(schedId, schedTime, schedRepeat, bodyWeight, totalGrams, dateCreated, isEnabled, isDone);
                         scheduleList.add(schedule);
