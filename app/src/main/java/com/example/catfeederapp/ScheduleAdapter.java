@@ -51,9 +51,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<MyViewHolder> {
         }
 
         Schedule schedule = scheduleList.get(position);
-
         String time = schedule.getSched_time();
-
         // split the time string into two parts
         String[] parts = time.split(" ");
 

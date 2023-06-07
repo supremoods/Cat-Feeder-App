@@ -1,5 +1,7 @@
 package com.example.catfeederapp;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -14,14 +16,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class editSchedule extends AppCompatActivity {
-    LinearLayout repeat_btn, once_btn, daily_btn, weekdays_btn;
+    LinearLayout repeat_btn, once_btn, daily_btn, weekdays_btn, repeat_days_btn;
     NumberPicker hourPicker, minutePicker, amPmPicker;
 
     ImageView cancel_btn, save_btn;
@@ -41,6 +48,8 @@ public class editSchedule extends AppCompatActivity {
 
     Boolean _weightBased = true;
     Boolean _customGrams = false;
+
+    ArrayList<String> selectedDays = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,7 +118,7 @@ public class editSchedule extends AppCompatActivity {
         repeatItemDialog = new BottomSheetDialog(this);
         repeatItemDialog.setContentView(R.layout.repeat_items_component);
 
-//        // load data from main activity
+        // load data from main activity
         Bundle bundle = getIntent().getExtras();
         String schedId = bundle.getString("sched_token");
         String schedTime = bundle.getString("sched_time");
@@ -202,6 +211,14 @@ public class editSchedule extends AppCompatActivity {
             // get the value of repeat days
             String repeatDays = schedDays.getText().toString();
 
+            if(repeatDays.equals("Repeat")){
+                // loop through the selected days
+                repeatDays = "";
+                for (String day : selectedDays) {
+                    repeatDays += day + " ";
+                }
+            }
+
             updateSchedule(schedId, time, repeatDays, bodyWeight.getText().toString(), grams.getText().toString());
 
             if(_weightBased){
@@ -216,7 +233,7 @@ public class editSchedule extends AppCompatActivity {
             once_btn = repeatItemDialog.findViewById(R.id.once_btn);
             daily_btn = repeatItemDialog.findViewById(R.id.daily_btn);
             weekdays_btn = repeatItemDialog.findViewById(R.id.weekdays_btn);
-
+            repeat_days_btn = repeatItemDialog.findViewById(R.id.repeat_days_btn);
 
             once_btn.setOnClickListener(v1 -> {
 
@@ -239,8 +256,63 @@ public class editSchedule extends AppCompatActivity {
 
             });
 
+            repeat_days_btn.setOnClickListener(v1 -> {
+                // show dialog box for repeat days selection
+                repeatItemDialog.dismiss();
+
+                showDialogForRepeatDays();
+            });
+
             repeatItemDialog.show();
         });
+    }
+
+    private void showDialogForRepeatDays() {
+
+        // Define the repeat days array
+        String[] repeatDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+        // Create a boolean array to track the selected days
+        boolean[] checkedDays = new boolean[repeatDays.length];
+
+        // Set the checked state for previously selected days
+        for (int i = 0; i < repeatDays.length; i++) {
+            if (selectedDays.contains(repeatDays[i])) {
+                checkedDays[i] = true;
+            }
+        }
+
+        // Implement your code to show the dialog box for repeat days selection
+        // Here's a basic example using AlertDialog with multi-choice items:
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Repeat Days")
+                .setMultiChoiceItems(repeatDays, checkedDays, (dialog, which, isChecked) -> {
+                    // Update the checked state of the selected day
+                    checkedDays[which] = isChecked;
+                })
+                .setPositiveButton("OK", (dialog, which) -> {
+                    // Process the selected repeat days
+                    selectedDays.clear(); // Clear the previously selected days
+
+                    for (int i = 0; i < repeatDays.length; i++) {
+                        if (checkedDays[i]) {
+                            selectedDays.add(repeatDays[i]);
+                        }
+                    }
+
+                    if (selectedDays.isEmpty()) {
+                        // Show an alert indicating that at least one repeat day must be selected
+                        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+                        alertBuilder.setTitle("Error")
+                                .setMessage("Please select at least one repeat day.")
+                                .setPositiveButton("OK", null)
+                                .show();
+                    } else {
+                        schedDays.setText("Repeat");
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     public int calculateGrams(int bodyWeight){
@@ -262,6 +334,35 @@ public class editSchedule extends AppCompatActivity {
         Log.d("time", String.valueOf(time[1]));
         Log.d("time", String.valueOf(amPm[1]));
 
+        if (schedRepeat.contains("Repeat")) {
+            // fetch the sched_repeat in firebase
+
+            DatabaseReference schedule = FirebaseDatabase.getInstance().getReference("Schedules").child(schedId).child("sched_repeat");
+
+            schedule.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        String sched_selected  = snapshot.getValue().toString();
+                        Log.d("sched_selected", sched_selected);
+
+                        String[] selected = sched_selected.split(" ");
+
+//                        add the selected days to the array list
+                        Collections.addAll(selectedDays, selected);
+
+
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+        }
         // set data to the number picker
         hourPicker.setValue(Integer.parseInt(time[0]));
         minutePicker.setValue(Integer.parseInt(time[1]));

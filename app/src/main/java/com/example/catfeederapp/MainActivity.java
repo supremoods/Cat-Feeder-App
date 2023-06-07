@@ -76,9 +76,12 @@ public class MainActivity extends AppCompatActivity {
                         boolean isEnabled = Boolean.parseBoolean(dataSnapshot.child("enabled").getValue().toString());
                         boolean isDone = Boolean.parseBoolean(dataSnapshot.child("done").getValue().toString());
 
-//                      Log schedRepeat
+
+                        // if the schedRepeat contains  "Daily", "Once", "Mon to Fri" set the isEnabled to true
+                        if (schedRepeat.contains("Daily") || schedRepeat.contains("Once") || schedRepeat.contains("Mon to Fri")) {
                             Log.d("schedRepeat", schedRepeat);
-                        if(schedRepeat != "Once" || schedRepeat != "Once" || schedRepeat != "Daily"){
+
+                        }else {
                             schedRepeat = "Repeat";
                         }
 

@@ -116,7 +116,6 @@ public class AddSchedule extends AppCompatActivity {
         minutePicker.setFormatter(i -> String.format("%02d", i));
 
         // Repeat Item Dialog
-
         repeatItemDialog = new BottomSheetDialog(this);
         repeatItemDialog.setContentView(R.layout.repeat_items_component);
 
@@ -220,8 +219,6 @@ public class AddSchedule extends AppCompatActivity {
             daily_btn = repeatItemDialog.findViewById(R.id.daily_btn);
             weekdays_btn = repeatItemDialog.findViewById(R.id.weekdays_btn);
             repeat_days_btn = repeatItemDialog.findViewById(R.id.repeat_days_btn);
-
-
 
             once_btn.setOnClickListener(v1 -> {
 
